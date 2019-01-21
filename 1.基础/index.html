@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Page Title</title>
+  </head>
+  <script src="../node_modules/vue/dist/vue.js"></script>
+  <link rel="stylesheet" href="./index.css">
+  <body>
+    <div id="app">
+      <!-- 起步 -->
+      {{ message }}
+      <!-- 声明式渲染   v-bind -->
+      <p v-bind:title="message">v-bind 鼠标悬浮提示</p>
+      <!-- 条件与循环  v-if  v-for -->
+      <p v-if="isShow" style="color: #ff0027">v-if 3s后被隐藏</p>
+      <p v-for="(item, index) in array">v-for="(item, index) in array" 我是循环渲染in: {{ item }}</p>
+      <p v-for="(item, index) of array">v-for="(item, index) of array" 我是循环渲染of: {{ item }}</p>
+      <!-- v-on -->
+      <button @click="$onClickButton">v-on 点我有惊喜哦！</button>
+      <!-- v-model -->
+      <p>{{ model }}</p>
+      <input type="text" v-model="model" placeholder="v-model 我是双向绑定的" />
+      <!-- 组件化应用构建 template-->
+      <br />
+      <template-one :todo="message"></template-one>
+      <!-- 冻结一个对象，此对象不能无法再响应（此方法为js的方法，并非vue独有）此处是改变obj的值无法更新视图，而不是改变freeze的值  Object.freeze() -->
+      <p>{{ freeze }}</p>
+      <!-- 一次性插值，数据不再响应 v-once -->
+      <p v-once>v-once 改变message我将不会改变: {{ message }}</p>
+      <!-- 解析html v-html -->
+      <p v-html="htmlTemplate"></p>
+      <!-- 渲染html的属性  v-bind -->
+      <p v-bind:class="myClass">v-bind 我的class名称随myClass改变而改变</p>
+      <!-- 计算属性， 可降低代码复杂度，提高可维护性, 计算属性不可用箭头函数表示 computed -->
+      <!-- 计算属性是基于它们的依赖进行缓存的。只在相关依赖发生改变时它们才会重新求值。这就意味着只要 message 还没有发生改变，多次访问 reversedMessage 计算属性会立即返回之前的计算结果，而不必再次执行函数。 -->
+      <p>computed 复杂逻辑的处理 {{ computedData }}</p>
+      <!-- 监听属性 当监听的属性值发生变化时调用 watch -->
+      <!-- 当需要在数据变化时执行异步或开销较大的操作时，这个方式是最有用的 -->
+      <span>wacth 监听属性 尝试改变输入框中的值: </span>
+      <input type="text" v-model="message" placeholder="watch 监听属性" />
+      <!-- 绑定css 也可以将对象写在data里面或者computed里面-->
+      <p :class="{click: isClick, action: isAction}">
+        :class="{name: boolean}" 我的class取决于isClick和isAction是否为true
+      </p>
+      <h5>官方文档显示可以使用数组，，，但是此处并未成功</h5>
+      <p :calss="array">:class="Array" 我的class是数组渲染的</p>
+      <p :class="[isClick ? 'true' : 'false']">
+        :class="[boolean ? true : false]" 三元表达式设置类名
+      </p>
+      <!-- 内联样式 此方法是js操作 :style="{}"-->
+      <p :style="templateStyle">:style="{styleName: style}" 内联样式</p>
+      <!-- v-if  v-else-if  v-else -->
+      <p v-if="vIf">v-if v-else-if v-else 我是v-if</p>
+      <p v-else-if="!vIf">v-if v-else-if v-else 我是v-else-if</p>
+      <p v-else>v-if v-else-if v-else 我是v-else</p>
+      <h5>
+        用 key 管理可复用的元素 Vue
+        会尽可能高效地渲染元素，通常会复用已有元素而不是从头开始渲染
+      </h5>
+      <div v-if="loginType === 'username'">
+        <label>Username</label> <input placeholder="Enter your username" />
+      </div>
+      <div v-else>
+        <label>Email</label> <input placeholder="Enter your email address" />
+      </div>
+      <br>
+      <!-- -------------------- -->
+      <div v-if="loginType === 'username'">
+        <label>Username</label>
+        <input placeholder="Enter your username" key="username" />
+      </div>
+      <div v-else>
+        <label>Email</label>
+        <input placeholder="Enter your email address" key="email" />
+      </div>
+      <br>
+      <!-- -------------------- -->
+      <button @click="$onClickToggle">切换</button>
+      <!-- v-show -->
+      <p @click="s_show = false" v-show="s_show">v-show 我是通过css控制隐藏的,点击我</p>
+    </div>
+    <script>
+      // 此处注册组件
+      Vue.component('template-one', {
+        props: ['todo'],
+        template: '<p>template <strong>{{todo}}</strong></p>'
+      })
+
+      let obj = '你们无法该改变我的值'
+
+      const app = new Vue({
+        el: '#app',
+        data: {
+          message: 'hello world !',
+          isShow: true,
+          array: [1, 2, 3],
+          model: '',
+          freeze: Object.freeze(obj),
+          htmlTemplate: '<em>v-html 我能解析html标签</em>',
+          myClass: 'class',
+          reverseHelloWorld: 'hello world !',
+          isClick: true,
+          isAction: false,
+          templateStyle: { color: '#222', 'text-align': 'center' },
+          vIf: false,
+          loginType: 'username',
+          s_show: true
+        },
+        watch: {
+          message: function(now, old) {
+            alert('message发生改变了！ 改变前： ' + old + '改变后: ' + now)
+          }
+        },
+        computed: {
+          // 反转字符串(计算属性默认只有set方法)
+          computedData: function() {
+            return this.message
+              .split('')
+              .reverse()
+              .join('')
+          },
+          // 计算方法get  set方法的实现
+          computedTest: {
+            get: function() {},
+            set: function(newValue) {}
+          }
+        },
+        methods: {
+          $onClickButton() {
+            alert('然而并没有任何惊喜...')
+          },
+          $onClickToggle() {
+            alert(
+              '注意！！！  上面输入框的值并没有被清空，表明此处并没有重头去渲染此元素，而是复用，下面使用key标识，使其重头渲染'
+            )
+            if (this.loginType === 'username') {
+              this.loginType = 'email'
+            } else {
+              this.loginType = 'username'
+            }
+          }
+        }
+      })
+
+      setTimeout(() => {
+        app.isShow = false
+      }, 3000)
+    </script>
+  </body>
+</html>
